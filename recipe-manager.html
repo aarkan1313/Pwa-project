@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe & Inventory Manager</title>
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiUmVjaXBlICYgSW52ZW50b3J5IE1hbmFnZXIiLCJzaG9ydF9uYW1lIjoiUmVjaXBlTWFuYWdlciIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZmZmZmZmIiwidGhlbWVfY29sb3IiOiIjMjU2M2ViIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTV2Y21jdk1qQXdNQzl6ZG1jaUlIWnBaWGRDYjNnOUlqQWdNQ0F5TkRBZ01qUXdJaUIzYVdSMGFEMGlNalF3SWlCb1pXbG5hSFE5SWpJME1DSStQSEpsWTNRZ2QybGtkR2c5SWpJME1DSWdhR1ZwWjJoMFBTSXlOREFpSUdacGJHdzlJaU15TlRZelpXSWlMejQ4TDNOMlp6ND0iLCJzaXplcyI6IjI0MHgyNDAiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        /* Navigation */
+        .nav {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-button {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .nav-button:hover {
+            border-color: #2563eb;
+            background-color: #f8fafc;
+            transform: translateY(-2px);
+        }
+
+        .nav-button.active {
+            background-color: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            min-height: 500px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .dashboard-card h3 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .btn-success {
+            background-color: #059669;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #047857;
+        }
+
+        .btn-danger {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #b91c1c;
+        }
+
+        /* Recipe and Inventory Cards */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .item-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .item-card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .item-card h4 {
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .item-card p {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Search and Filter */
+        .search-filter {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-filter input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* Craft Mode */
+        .craft-mode {
+            background: #f0fdf4;
+            border: 2px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .craft-recipe {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .craft-ingredients {
+            margin-bottom: 1.5rem;
+        }
+
+        .ingredient-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .ingredient-item:hover {
+            background-color: #f9fafb;
+        }
+
+        .ingredient-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .ingredient-item.checked {
+            background-color: #dcfce7;
+            border-color: #bbf7d0;
+        }
+
+        .ingredient-item.checked .ingredient-text {
+            text-decoration: line-through;
+            color: #6b7280;
+        }
+
+        /* Profile Setup */
+        .setup-wizard {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .wizard-step {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .wizard-step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .business-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .business-type-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .business-type-card:hover {
+            border-color: #2563eb;
+            background-color: #f8fafc;
+        }
+
+        .business-type-card.selected {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+        }
+
+        .business-type-card h4 {
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+
+        .business-type-card p {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .nav {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-filter {
+                flex-direction: column;
+            }
+
+            .search-filter input {
+                min-width: auto;
+            }
+
+            .item-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Loading and Success States */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .success-message {
+            background-color: #dcfce7;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .error-message {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        /* Utility Classes */
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mt-2 { margin-top: 1rem; }
+        .hidden { display: none; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .w-full { width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Recipe & Inventory Manager</h1>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <button class="nav-button active" onclick="showPage('dashboard')">Dashboard</button>
+            <button class="nav-button" onclick="showPage('recipes')">Recipes</button>
+            <button class="nav-button" onclick="showPage('inventory')">Inventory</button>
+            <button class="nav-button" onclick="showPage('craft')">Craft Mode</button>
+            <button class="nav-button" onclick="showPage('settings')">Settings</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <div id="dashboard" class="page active">
+                <h2>Business Dashboard</h2>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3>Total Recipes</h3>
+                        <div class="stat-number" id="total-recipes">0</div>
+                        <div class="stat-label">Recipes in collection</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Inventory Items</h3>
+                        <div class="stat-number" id="total-inventory">0</div>
+                        <div class="stat-label">Ingredients tracked</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Low Stock Items</h3>
+                        <div class="stat-number" id="low-stock">0</div>
+                        <div class="stat-label">Need restocking</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Average Recipe Cost</h3>
+                        <div class="stat-number" id="avg-cost">$0.00</div>
+                        <div class="stat-label">Per recipe estimate</div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3>Recently Added Recipes</h3>
+                        <div id="recent-recipes">No recipes yet</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Inventory Alerts</h3>
+                        <div id="inventory-alerts">All items in stock</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Setup Page (shown on first visit) -->
+            <div id="profile-setup" class="page hidden">
+                <div class="setup-wizard">
+                    <h2>Welcome! Let's set up your business profile</h2>
+                    
+                    <div class="wizard-step active">
+                        <h3>What type of business are you?</h3>
+                        <div class="business-type-grid">
+                            <div class="business-type-card" onclick="selectBusinessType('bakery')">
+                                <h4>🥖 Bakery</h4>
+                                <p>Breads, pastries, cakes, and baked goods</p>
+                            </div>
+                            <div class="business-type-card" onclick="selectBusinessType('cottage')">
+                                <h4>🏠 Cottage Food</h4>
+                                <p>Home-based food production and sales</p>
+                            </div>
+                            <div class="business-type-card" onclick="selectBusinessType('craft')">
+                                <h4>🎨 Craft Maker</h4>
+                                <p>Handmade crafts, soaps, and artisan goods</p>
+                            </div>
+                            <div class="business-type-card" onclick="selectBusinessType('other')">
+                                <h4>📦 Other</h4>
+                                <p>Custom business type</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="nextStep()">Continue</button>
+                    </div>
+
+                    <div class="wizard-step">
+                        <h3>Business Information</h3>
+                        <div class="form-group">
+                            <label for="business-name">Business Name</label>
+                            <input type="text" id="business-name" class="form-control" placeholder="Enter your business name">
+                        </div>
+                        <div class="form-group">
+                            <label for="measurement-system">Measurement System</label>
+                            <select id="measurement-system" class="form-control">
+                                <option value="imperial">Imperial (cups, oz, lbs)</option>
+                                <option value="metric">Metric (ml, g, kg)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="currency">Currency</label>
+                            <select id="currency" class="form-control">
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="GBP">GBP (£)</option>
+                                <option value="CAD">CAD ($)</option>
+                                <option value="AUD">AUD ($)</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+                            <button class="btn btn-primary" onclick="completeSetup()">Complete Setup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recipes Page -->
+            <div id="recipes" class="page">
+                <div class="flex justify-between items-center mb-2">
+                    <h2>Recipe Collection</h2>
+                    <button class="btn btn-primary" onclick="showAddRecipe()">Add New Recipe</button>
+                </div>
+                
+                <div class="search-filter">
+                    <input type="text" id="recipe-search" class="form-control" placeholder="Search recipes..." onkeyup="filterRecipes()">
+                    <select id="recipe-category-filter" class="form-control" onchange="filterRecipes()">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+
+                <div id="recipe-list" class="item-grid">
+                    <!-- Recipes will be populated here -->
+                </div>
+
+                <!-- Add/Edit Recipe Form -->
+                <div id="recipe-form" class="hidden">
+                    <h3 id="recipe-form-title">Add New Recipe</h3>
+                    <form onsubmit="saveRecipe(event)">
+                        <div class="form-group">
+                            <label for="recipe-name">Recipe Name</label>
+                            <input type="text" id="recipe-name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipe-category">Category</label>
+                            <select id="recipe-category" class="form-control">
+                                <option value="breads">Breads</option>
+                                <option value="pastries">Pastries</option>
+                                <option value="cakes">Cakes</option>
+                                <option value="cookies">Cookies</option>
+                                <option value="savory">Savory</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipe-description">Description</label>
+                            <textarea id="recipe-description" class="form-control" placeholder="Brief description of the recipe"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipe-yield">Yield (servings/pieces)</label>
+                            <input type="number" id="recipe-yield" class="form-control" min="1" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="recipe-prep-time">Prep Time (minutes)</label>
+                            <input type="number" id="recipe-prep-time" class="form-control" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="recipe-cook-time">Cook Time (minutes)</label>
+                            <input type="number" id="recipe-cook-time" class="form-control" min="0" value="0">
+                        </div>
+                        
+                        <h4>Ingredients</h4>
+                        <div id="ingredients-container">
+                            <div class="ingredient-input">
+                                <div class="flex gap-2 mb-1">
+                                    <input type="text" class="form-control ingredient-name" placeholder="Ingredient name" style="flex: 2;">
+                                    <input type="number" class="form-control ingredient-quantity" placeholder="Qty" step="0.01" style="flex: 1;">
+                                    <input type="text" class="form-control ingredient-unit" placeholder="Unit" style="flex: 1;">
+                                    <button type="button" class="btn btn-danger btn-small" onclick="removeIngredient(this)">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-small mb-2" onclick="addIngredient()">Add Ingredient</button>
+                        
+                        <div class="form-group">
+                            <label for="recipe-instructions">Instructions</label>
+                            <textarea id="recipe-instructions" class="form-control" rows="6" placeholder="Step-by-step instructions"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipe-notes">Notes</label>
+                            <textarea id="recipe-notes" class="form-control" placeholder="Personal notes, variations, tips"></textarea>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button type="submit" class="btn btn-success">Save Recipe</button>
+                            <button type="button" class="btn btn-secondary" onclick="cancelRecipe()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Inventory Page -->
+            <div id="inventory" class="page">
+                <div class="flex justify-between items-center mb-2">
+                    <h2>Inventory Management</h2>
+                    <button class="btn btn-primary" onclick="showAddInventory()">Add Ingredient</button>
+                </div>
+                
+                <div class="search-filter">
+                    <input type="text" id="inventory-search" class="form-control" placeholder="Search ingredients..." onkeyup="filterInventory()">
+                    <select id="inventory-category-filter" class="form-control" onchange="filterInventory()">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+
+                <div id="inventory-list" class="item-grid">
+                    <!-- Inventory items will be populated here -->
+                </div>
+
+                <!-- Add/Edit Inventory Form -->
+                <div id="inventory-form" class="hidden">
+                    <h3 id="inventory-form-title">Add New Ingredient</h3>
+                    <form onsubmit="saveInventory(event)">
+                        <div class="form-group">
+                            <label for="inventory-name">Ingredient Name</label>
+                            <input type="text" id="inventory-name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="inventory-category-input">Category</label>
+                            <select id="inventory-category-input" class="form-control">
+                                <option value="flours">Flours & Grains</option>
+                                <option value="sugars">Sugars & Sweeteners</option>
+                                <option value="fats">Fats & Oils</option>
+                                <option value="dairy">Dairy</option>
+                                <option value="spices">Spices & Seasonings</option>
+                                <option value="leavening">Leavening Agents</option>
+                                <option value="extracts">Extracts & Flavorings</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="inventory-quantity">Current Quantity</label>
+                            <input type="number" id="inventory-quantity" class="form-control" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="inventory-unit">Unit</label>
+                            <input type="text" id="inventory-unit" class="form-control" placeholder="lbs, kg, cups, etc." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="inventory-cost">Cost per Unit</label>
+                            <input type="number" id="inventory-cost" class="form-control" step="0.01" min="0" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="inventory-supplier">Supplier (optional)</label>
+                            <input type="text" id="inventory-supplier" class="form-control" placeholder="Where you buy this ingredient">
+                        </div>
+                        <div class="form-group">
+                            <label for="inventory-min-stock">Minimum Stock Alert</label>
+                            <input type="number" id="inventory-min-stock" class="form-control" step="0.01" min="0" placeholder="Alert when quantity falls below this">
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button type="submit" class="btn btn-success">Save Ingredient</button>
+                            <button type="button" class="btn btn-secondary" onclick="cancelInventory()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Craft Mode Page -->
+            <div id="craft" class="page">
+                <h2>Craft Mode - Active Cooking</h2>
+                <div class="form-group">
+                    <label for="craft-recipe-select">Select Recipe to Cook</label>
+                    <select id="craft-recipe-select" class="form-control" onchange="loadCraftRecipe()">
+                        <option value="">Choose a recipe...</option>
+                    </select>
+                </div>
+
+                <div id="craft-content" class="hidden">
+                    <div class="craft-mode">
+                        <div class="craft-recipe">
+                            <h3 id="craft-recipe-name"></h3>
+                            <div class="flex justify-between mb-2">
+                                <span><strong>Yield:</strong> <span id="craft-yield"></span></span>
+                                <span><strong>Total Time:</strong> <span id="craft-total-time"></span> minutes</span>
+                            </div>
+                            
+                            <h4>Ingredients Checklist</h4>
+                            <div class="craft-ingredients" id="craft-ingredients">
+                                <!-- Ingredients will be populated here -->
+                            </div>
+                            
+                            <h4>Instructions</h4>
+                            <div id="craft-instructions"></div>
+                            
+                            <div class="mt-2">
+                                <button class="btn btn-success" onclick="completeRecipe()">Mark Recipe Complete</button>
+                                <button class="btn btn-secondary" onclick="resetCraftMode()">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settings" class="page">
+                <h2>Settings & Data Management</h2>
+                
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3>Business Profile</h3>
+                        <p><strong>Business Name:</strong> <span id="profile-business-name">Not Set</span></p>
+                        <p><strong>Type:</strong> <span id="profile-business-type">Not Set</span></p>
+                        <p><strong>Measurements:
